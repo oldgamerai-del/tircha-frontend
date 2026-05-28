@@ -4,24 +4,30 @@ on:
   schedule:
     - cron: '0 6 * * *'    # runs every day at 6 AM automatically
     - cron: '0 14 * * *'   # runs every day at 2 PM automatically
-  workflow_dispatch:         # lets you trigger manually too
+  workflow_dispatch:
 
 jobs:
   generate-content:
     runs-on: ubuntu-latest
-    
+
     steps:
-      - name: Get code
+      - name: Checkout tircha-frontend
         uses: actions/checkout@v4
-      
+
+      - name: Checkout tircha-backend
+        uses: actions/checkout@v4
+        with:
+          repository: oldgamerai-del/tircha-backend
+          path: tircha-backend
+
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-      
-      - name: Install packages
-        run: pip install aiohttp python-dotenv
-      
+
+      - name: Install backend dependencies
+        run: pip install -r tircha-backend/requirements.txt
+
       - name: Generate articles
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
@@ -29,8 +35,8 @@ jobs:
           JASPER_AFFILIATE_URL: ${{ secrets.JASPER_AFFILIATE_URL }}
           NORDVPN_AFFILIATE_URL: ${{ secrets.NORDVPN_AFFILIATE_URL }}
           RAZER_AFFILIATE_URL: ${{ secrets.RAZER_AFFILIATE_URL }}
-        run: python backend/automation.py
-      
+        run: python tircha-backend/backend/automation.py
+
       - name: Publish new articles to website
         run: |
           git config user.email "bot@tircha.com"
