@@ -35,7 +35,7 @@ jobs:
           JASPER_AFFILIATE_URL: ${{ secrets.JASPER_AFFILIATE_URL }}
           NORDVPN_AFFILIATE_URL: ${{ secrets.NORDVPN_AFFILIATE_URL }}
           RAZER_AFFILIATE_URL: ${{ secrets.RAZER_AFFILIATE_URL }}
-        run: python tircha-backend/backend/automation.py
+        run: python tircha-backend/automation.py
 
       - name: Publish new articles to website
         run: |
