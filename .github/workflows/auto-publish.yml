@@ -1,31 +1,38 @@
-name: Auto Generate & Publish Articles
+name: Daily Article Generation
 
 on:
   schedule:
-    - cron: '0 6 * * *'    # runs every day at 6 AM automatically
-    - cron: '0 14 * * *'   # runs every day at 2 PM automatically
+    - cron: '0 6 * * *'
+    - cron: '0 14 * * *'
   workflow_dispatch:
+
+# Required to push commits back to repo
+permissions:
+  contents: write
 
 jobs:
   generate-content:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout tircha-frontend
+      - name: Checkout frontend repo
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Checkout tircha-backend
+      - name: Checkout backend repo
         uses: actions/checkout@v4
         with:
           repository: oldgamerai-del/tircha-backend
           path: tircha-backend
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      - name: Install backend dependencies
+      - name: Install packages
         run: pip install -r tircha-backend/requirements.txt
 
       - name: Generate articles
@@ -37,12 +44,10 @@ jobs:
           RAZER_AFFILIATE_URL: ${{ secrets.RAZER_AFFILIATE_URL }}
         run: cd tircha-backend && python automation.py
 
-      - name: Publish new articles to website
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Commit and push new articles
         run: |
-          git config -global user.email "bot@tircha.com"
-          git config -global user.name "Tircha Bot"
+          git config --global user.email "bot@tircha.com"
+          git config --global user.name "Tircha Bot"
           git add content/blog/
-          git diff --staged --quiet || git commit -m "Auto: New articles $(date +%Y-%m-%d)"
+          git diff --staged --quiet || git commit -m "Auto: New articles $(date +%Y-%m-%d-%H%M)"
           git push
