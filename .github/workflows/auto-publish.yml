@@ -48,6 +48,6 @@ jobs:
         run: |
           git config --global user.email "bot@tircha.com"
           git config --global user.name "Tircha Bot"
-          git add content/blog/
+          git add frontend/content/blog/
           git diff --staged --quiet || git commit -m "Auto: New articles $(date +%Y-%m-%d-%H%M)"
           git push
