@@ -55,6 +55,6 @@ jobs:
           git config --global user.name "Tircha Bot"
           git fetch origin master
           git reset --hard origin/master
-          git add frontend/content/blog/
+          git add content/blog/
           git diff --staged --quiet || git commit -m "Auto: New article $(date +%Y-%m-%d-%H%M)"
           git push origin master
