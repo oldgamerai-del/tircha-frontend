@@ -1,6 +1,11 @@
+name: Daily Article Generation
+
 on:
   schedule:
-    - cron: '0 6 * * *'    # once per day only, not twice
+    - cron: '0 3 * * *'
+    - cron: '0 9 * * *'
+    - cron: '0 15 * * *'
+    - cron: '0 21 * * *'
   workflow_dispatch:
 
 permissions:
@@ -9,6 +14,7 @@ permissions:
 jobs:
   generate-content:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
       - name: Checkout frontend repo
@@ -23,6 +29,7 @@ jobs:
           repository: oldgamerai-del/tircha-backend
           path: tircha-backend
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
 
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -41,11 +48,12 @@ jobs:
           RAZER_AFFILIATE_URL: ${{ secrets.RAZER_AFFILIATE_URL }}
         run: cd tircha-backend && python automation.py
 
-      - name: Commit and push new articles
+      - name: Push new articles
         run: |
           git config --global user.email "bot@tircha.com"
           git config --global user.name "Tircha Bot"
-          git pull --rebase origin master
+          git fetch origin master
+          git reset --hard origin/master
           git add frontend/content/blog/
-          git diff --staged --quiet || git commit -m "Auto: New articles $(date +%Y-%m-%d-%H%M)"
+          git diff --staged --quiet || git commit -m "Auto: New article $(date +%Y-%m-%d-%H%M)"
           git push origin master
