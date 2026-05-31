@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Automated Income Systems — Blueprint</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #080c10;
+    --surface: #0d1117;
+    --surface2: #131920;
+    --border: #1e2a35;
+    --accent: #00e5ff;
+    --accent2: #7fff6e;
+    --accent3: #ff6b6b;
+    --accent4: #ffd166;
+    --text: #c8d8e8;
+    --muted: #4a6070;
+    --heading: #eaf2ff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid noise overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.015) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    position: relative;
+    z-index: 10;
+    padding: 40px 24px 20px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(0,229,255,0.04) 0%, transparent 100%);
+  }
+
+  .header-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    opacity: 0.8;
+  }
+
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(22px, 5vw, 42px);
+    font-weight: 800;
+    color: var(--heading);
+    line-height: 1.1;
+    letter-spacing: -1px;
+  }
+
+  header h1 span { color: var(--accent); }
+
+  .header-sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 10px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* Filter bar */
+  .filter-bar {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    gap: 8px;
+    padding: 16px 24px;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--border);
+    scrollbar-width: none;
+    flex-wrap: wrap;
+  }
+
+  .filter-bar::-webkit-scrollbar { display: none; }
+
+  .filter-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .filter-btn:hover, .filter-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(0,229,255,0.07);
+  }
+
+  /* Sort/compare bar */
+  .sort-bar {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 24px;
+    border-bottom: 1px solid var(--border);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .sort-bar select {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+
+  .compare-toggle {
+    margin-left: auto;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 5px 12px;
+    border: 1px solid var(--accent2);
+    border-radius: 3px;
+    background: rgba(127,255,110,0.07);
+    color: var(--accent2);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .compare-toggle:hover { background: rgba(127,255,110,0.15); }
+
+  /* Main grid */
+  .grid {
+    position: relative;
+    z-index: 10;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    padding: 0;
+  }
+
+  .card {
+    background: var(--surface);
+    padding: 24px;
+    cursor: pointer;
+    transition: background 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--card-color, var(--accent));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s;
+  }
+
+  .card:hover::before, .card.selected::before { transform: scaleX(1); }
+  .card:hover { background: var(--surface2); }
+  .card.selected {
+    background: var(--surface2);
+    outline: 1px solid var(--card-color, var(--accent));
+  }
+
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    gap: 12px;
+  }
+
+  .card-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--heading);
+    line-height: 1.2;
+  }
+
+  .card-badges {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-end;
+    flex-shrink: 0;
+  }
+
+  .badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+
+  .badge-diff-easy { background: rgba(127,255,110,0.12); color: var(--accent2); border: 1px solid rgba(127,255,110,0.25); }
+  .badge-diff-medium { background: rgba(255,209,102,0.12); color: var(--accent4); border: 1px solid rgba(255,209,102,0.25); }
+  .badge-diff-hard { background: rgba(255,107,107,0.12); color: var(--accent3); border: 1px solid rgba(255,107,107,0.25); }
+
+  .card-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+
+  /* Score bars */
+  .scores {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .score-item label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .score-bar {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .score-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--card-color, var(--accent));
+    transition: width 0.6s ease;
+  }
+
+  .score-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--card-color, var(--accent));
+    margin-top: 2px;
+  }
+
+  .revenue-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .rev-item {
+    flex: 1;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 8px;
+    text-align: center;
+  }
+
+  .rev-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+  }
+
+  .rev-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--heading);
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 14px;
+  }
+
+  .tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    padding: 2px 7px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+  }
+
+  .card-expand-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--card-color, var(--accent));
+    background: none;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    padding: 5px 12px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    width: 100%;
+    transition: background 0.2s;
+  }
+
+  .card-expand-btn:hover { background: rgba(255,255,255,0.05); }
+
+  /* Detail panel */
+  .detail-panel {
+    position: fixed;
+    right: 0; top: 0; bottom: 0;
+    width: min(520px, 100vw);
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    z-index: 100;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .detail-panel.open { transform: translateX(0); }
+
+  .detail-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 99;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .detail-overlay.open { opacity: 1; pointer-events: all; }
+
+  .detail-header {
+    padding: 24px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+    z-index: 10;
+  }
+
+  .detail-close {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    background: none;
+    border: 1px solid var(--border);
+    padding: 5px 10px;
+    border-radius: 2px;
+    cursor: pointer;
+    float: right;
+    letter-spacing: 1px;
+  }
+
+  .detail-close:hover { color: var(--accent3); border-color: var(--accent3); }
+
+  .detail-body { padding: 24px; flex: 1; }
+
+  .detail-section {
+    margin-bottom: 28px;
+  }
+
+  .detail-section h3 {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .detail-section p {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .step-list {
+    counter-reset: steps;
+    list-style: none;
+  }
+
+  .step-list li {
+    counter-increment: steps;
+    display: flex;
+    gap: 12px;
+    margin-bottom: 10px;
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  .step-list li::before {
+    content: counter(steps, decimal-leading-zero);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    flex-shrink: 0;
+    margin-top: 2px;
+    min-width: 24px;
+  }
+
+  .pros-cons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .pros, .cons {
+    background: rgba(0,0,0,0.2);
+    border-radius: 4px;
+    padding: 12px;
+    border: 1px solid var(--border);
+  }
+
+  .pros h4 { color: var(--accent2); font-size: 11px; margin-bottom: 8px; font-family: 'DM Mono', monospace; }
+  .cons h4 { color: var(--accent3); font-size: 11px; margin-bottom: 8px; font-family: 'DM Mono', monospace; }
+
+  .pros ul, .cons ul {
+    list-style: none;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--text);
+  }
+
+  .pros ul li::before { content: '+ '; color: var(--accent2); }
+  .cons ul li::before { content: '− '; color: var(--accent3); }
+
+  .tech-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .tech-pill {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 4px 10px;
+    background: rgba(0,229,255,0.07);
+    border: 1px solid rgba(0,229,255,0.2);
+    border-radius: 2px;
+    color: var(--accent);
+  }
+
+  /* Compare view */
+  .compare-view {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: var(--bg);
+    overflow-y: auto;
+    padding: 24px;
+  }
+
+  .compare-view.open { display: block; }
+
+  .compare-close {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    color: var(--accent3);
+    background: none;
+    border: 1px solid var(--accent3);
+    padding: 8px 16px;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-bottom: 20px;
+  }
+
+  .compare-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+  }
+
+  .compare-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px;
+  }
+
+  .compare-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--heading);
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .compare-metric {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 12px;
+  }
+
+  .compare-metric .label { color: var(--muted); font-family: 'DM Mono', monospace; font-size: 10px; }
+  .compare-metric .val { color: var(--heading); font-family: 'DM Mono', monospace; }
+
+  /* Recommendation bar */
+  .rec-bar {
+    position: relative;
+    z-index: 10;
+    background: linear-gradient(90deg, rgba(127,255,110,0.08), rgba(0,229,255,0.08));
+    border-bottom: 1px solid var(--border);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .rec-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent2);
+  }
+
+  .rec-text {
+    font-size: 13px;
+    color: var(--text);
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  @media (max-width: 600px) {
+    .grid { grid-template-columns: 1fr; }
+    .pros-cons { grid-template-columns: 1fr; }
+    .detail-panel { width: 100vw; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-tag">// Automated Income Systems — Idea Matrix</div>
+  <h1>8 Systems for <span>Zero-Effort</span> Income</h1>
+  <div class="header-sub">Excluding: affiliate links & NicheSignal (already in progress) — Click any card to deep-dive</div>
+</header>
+
+<div class="rec-bar">
+  <div class="rec-label">★ Analyst Pick</div>
+  <div class="rec-text">For long-term passive income without manual work: <strong>Programmatic SEO Data Site</strong> or <strong>AI SaaS Micro-Tool</strong> rank highest on automation + longevity.</div>
+</div>
+
+<div class="filter-bar">
+  <button class="filter-btn active" onclick="filterCards('all', this)">All Ideas</button>
+  <button class="filter-btn" onclick="filterCards('easy', this)">Easy Start</button>
+  <button class="filter-btn" onclick="filterCards('high-income', this)">High Income</button>
+  <button class="filter-btn" onclick="filterCards('zero-cost', this)">Zero Cost</button>
+  <button class="filter-btn" onclick="filterCards('fastest', this)">Fastest Revenue</button>
+  <button class="filter-btn" onclick="filterCards('no-manual', this)">Fully Automated</button>
+</div>
+
+<div class="sort-bar">
+  <span>SORT BY</span>
+  <select onchange="sortCards(this.value)">
+    <option value="default">Default</option>
+    <option value="income">Income Potential</option>
+    <option value="automation">Automation Level</option>
+    <option value="difficulty">Ease of Setup</option>
+    <option value="speed">Speed to Revenue</option>
+  </select>
+  <button class="compare-toggle" onclick="openCompare()">⊞ Compare Selected</button>
+</div>
+
+<div class="grid" id="card-grid"></div>
+
+<!-- Detail Panel -->
+<div class="detail-overlay" id="overlay" onclick="closeDetail()"></div>
+<div class="detail-panel" id="detail-panel">
+  <div class="detail-header">
+    <button class="detail-close" onclick="closeDetail()">✕ CLOSE</button>
+    <div id="detail-num" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:4px;"></div>
+    <div id="detail-title" style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--heading);"></div>
+  </div>
+  <div class="detail-body" id="detail-body"></div>
+</div>
+
+<!-- Compare View -->
+<div class="compare-view" id="compare-view">
+  <button class="compare-close" onclick="closeCompare()">✕ Close Compare</button>
+  <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--heading);margin-bottom:20px;">Side-by-Side Comparison</div>
+  <div class="compare-grid" id="compare-grid"></div>
+</div>
+
+<script>
+const IDEAS = [
+  {
+    id: 1,
+    title: "Programmatic SEO Data Site",
+    color: "#00e5ff",
+    category: ["all","high-income","no-manual"],
+    difficulty: "medium",
+    difficultyScore: 60,
+    tags: ["SEO","Python","Postgres","Vercel","Scraping"],
+    shortDesc: "Auto-generate thousands of data-rich pages targeting long-tail keywords. Google indexes them, traffic compounds, ads/affiliates monetize passively.",
+    incomeScore: 90,
+    automationScore: 95,
+    easeScore: 55,
+    speedScore: 40,
+    rev30: "$0–50",
+    rev90: "$200–800",
+    rev1y: "$2k–15k/mo",
+    incomeRaw: 90,
+    speedRaw: 40,
+    automationRaw: 95,
+    easeRaw: 55,
+    fullDesc: `A programmatic SEO site generates thousands of unique, useful pages automatically by combining structured data with templated content. Think "best X in [city]", "salary for [job] in [state]", or "[tool] vs [tool] comparison". Each page targets a specific long-tail keyword that individually has low competition but collectively drive massive traffic.`,
+    howItWorks: [
+      "Scrape or buy a dataset (job salaries, business listings, real estate, product specs, etc.)",
+      "Build a Next.js or Python/FastAPI site with dynamic URL routes — one page per data record",
+      "AI auto-writes unique meta descriptions and intro paragraphs per page",
+      "Deploy to Vercel (free). Submit XML sitemap to Google Search Console",
+      "Google indexes 10k+ pages over weeks — each starts ranking for its keyword",
+      "Monetize with Google AdSense, Amazon affiliate links, or a lead-gen form",
+      "GitHub Actions re-scrapes data weekly and regenerates pages automatically"
+    ],
+    pros: ["Completely passive after setup", "Compounds — more pages = more traffic = more revenue", "Zero ongoing cost", "Can scale to millions of pages"],
+    cons: ["Takes 3–6 months to see Google traffic", "Needs a good dataset to start", "Google algo updates can hurt rankings"],
+    techStack: ["Next.js", "Vercel (free)", "Postgres/Supabase", "Python scraper", "GitHub Actions", "Google AdSense", "OpenAI (one-time)"],
+    monetization: "Google AdSense (display ads), affiliate links embedded in pages, lead capture forms sold to local businesses",
+    timeToRevenue: "3–6 months (SEO lag)",
+    manualWork: "Near zero after setup. Weekly cron re-runs data refresh.",
+    bestFor: "Patient builders who want a true set-and-forget compounding asset"
+  },
+  {
+    id: 2,
+    title: "AI Micro-SaaS Tool",
+    color: "#7fff6e",
+    category: ["all","high-income","fastest"],
+    difficulty: "medium",
+    difficultyScore: 65,
+    tags: ["SaaS","Stripe","React","API","Subscriptions"],
+    shortDesc: "Build a single-purpose AI tool that solves one very specific pain point. Charge $9–$49/mo. Acquire users via SEO and viral sharing.",
+    incomeScore: 95,
+    automationScore: 88,
+    easeScore: 50,
+    speedScore: 75,
+    rev30: "$100–500",
+    rev90: "$500–3k",
+    rev1y: "$5k–50k/mo",
+    incomeRaw: 95,
+    speedRaw: 75,
+    automationRaw: 88,
+    easeRaw: 50,
+    fullDesc: `A micro-SaaS is a tiny, focused software product that does one thing very well. Unlike big SaaS, you need no team — just a tool, a landing page, and a Stripe subscription. The AI handles the core "work", so users pay for output, not your time. Examples: AI cold email writer for recruiters, AI lease analyzer, AI meal planner, AI brand name generator with domain check.`,
+    howItWorks: [
+      "Identify a specific painful manual task a niche audience does repeatedly",
+      "Build a React frontend + FastAPI backend. Claude/GPT API does the heavy lifting",
+      "Integrate Stripe for subscriptions (free tier + paid). Supabase for auth + DB",
+      "Deploy backend on Railway (free tier), frontend on Vercel",
+      "SEO-optimized landing page targeting '[your niche] AI tool' keywords",
+      "Add a free tier with usage limits — users hit limit and upgrade",
+      "Stripe webhooks automate billing. No human needed.",
+      "Add affiliate program: users get 30% recurring for referrals"
+    ],
+    pros: ["Recurring subscription revenue", "AI does the product work", "Scales infinitely with zero extra cost", "Can reach $10k MRR with <500 users"],
+    cons: ["Needs real marketing to get first users", "Competition is rising fast", "API costs can eat margins if not careful"],
+    techStack: ["React/Next.js", "FastAPI", "Supabase", "Stripe", "Railway", "Claude/GPT API", "Vercel"],
+    monetization: "Monthly subscriptions ($9–$49/mo), annual plans, usage-based overage fees, white-label licensing",
+    timeToRevenue: "2–6 weeks (first paying user)",
+    manualWork: "Almost none. Customer support is the only manual task — automate with a chatbot.",
+    bestFor: "Technical founders who want the highest income ceiling with a real product"
+  },
+  {
+    id: 3,
+    title: "Newsletter + AI Content Machine",
+    color: "#ffd166",
+    category: ["all","easy","zero-cost","no-manual"],
+    difficulty: "easy",
+    difficultyScore: 35,
+    tags: ["Newsletter","Beehiiv","AI Writing","Sponsorships"],
+    shortDesc: "AI scrapes trending topics in a niche, writes a weekly newsletter automatically, grows via referral loops, monetizes with sponsorships and paid subs.",
+    incomeScore: 65,
+    automationScore: 80,
+    easeScore: 85,
+    speedScore: 60,
+    rev30: "$0–100",
+    rev90: "$100–500",
+    rev1y: "$1k–8k/mo",
+    incomeRaw: 65,
+    speedRaw: 60,
+    automationRaw: 80,
+    easeRaw: 85,
+    fullDesc: `A niche newsletter that writes itself. You pick a topic (e.g., "AI tools for lawyers", "remote job opportunities in design", "weekly crypto regulation news"). A Python script scrapes RSS feeds, Reddit, and Twitter/X for the week's top content, Claude summarizes and writes the issue in your newsletter's voice, and Beehiiv or Substack sends it automatically.`,
+    howItWorks: [
+      "Pick a tight niche with an underserved professional audience",
+      "Set up Beehiiv (free tier supports automation via API)",
+      "Python script runs every Monday: scrapes RSS + Reddit r/[niche] for top posts",
+      "Claude API formats them into a 500-word newsletter with summaries + commentary",
+      "Script calls Beehiiv API to schedule and send the issue",
+      "Beehiiv's built-in referral program auto-grows your list (users share for rewards)",
+      "At 1k subscribers: pitch sponsors. At 5k: charge $300–$1500 per issue slot",
+      "Add a paid tier ($7/mo) for bonus content AI also generates"
+    ],
+    pros: ["Extremely low setup cost", "Referral loop grows it passively", "Sponsors pay well for engaged niche lists", "Easiest to start today"],
+    cons: ["Revenue takes time (need subscriber base first)", "Email deliverability can be tricky", "Very competitive space"],
+    techStack: ["Python", "Beehiiv API", "Claude API", "GitHub Actions (scheduler)", "RSS parsers", "Reddit API"],
+    monetization: "Sponsorships ($200–$2000/issue at scale), paid subscriptions, affiliate links in content, digital product upsells",
+    timeToRevenue: "2–4 months (need ~500 subscribers)",
+    manualWork: "Review the AI draft occasionally. Fully automated once you trust output quality.",
+    bestFor: "Non-technical founders or those wanting a simple, safe, legit business"
+  },
+  {
+    id: 4,
+    title: "API Data Aggregator / Intelligence Feed",
+    color: "#ff6b6b",
+    category: ["all","high-income","no-manual"],
+    difficulty: "hard",
+    difficultyScore: 75,
+    tags: ["API","Data","B2B","Subscriptions","Python"],
+    shortDesc: "Aggregate hard-to-find data from multiple public sources, clean it with AI, and sell API access to developers and businesses as a subscription.",
+    incomeScore: 92,
+    automationScore: 97,
+    easeScore: 35,
+    speedScore: 45,
+    rev30: "$0–200",
+    rev90: "$300–2k",
+    rev1y: "$3k–30k/mo",
+    incomeRaw: 92,
+    speedRaw: 45,
+    automationRaw: 97,
+    easeRaw: 35,
+    fullDesc: `Businesses pay well for clean, reliable data they don't want to collect themselves. You build a system that scrapes, cleans, normalizes, and serves data via an API. Examples: real-time job posting trends by skill/city, VC funding rounds aggregated from 20 sources, SaaS pricing changes tracker, FDA approval pipeline, government contract awards. Once built, it runs 24/7 with zero touch.`,
+    howItWorks: [
+      "Identify data that businesses need but is hard to get (job postings, pricing, news, patents, etc.)",
+      "Build scrapers in Python (scrapy/playwright) for 5–20 public sources",
+      "Normalize and deduplicate data with pandas, store in Postgres/Supabase",
+      "Spin up a FastAPI endpoint with API key auth (rate-limited by plan)",
+      "Integrate Stripe for API key management and tiered billing",
+      "GitHub Actions runs scrapers daily/hourly. PGCron for DB cleanup.",
+      "List on RapidAPI marketplace — instant distribution to 5M+ developers",
+      "Developers build products on your data, creating sticky subscription dependency"
+    ],
+    pros: ["B2B customers have high willingness-to-pay", "Extremely high automation", "Sticky (devs integrate and stay)", "RapidAPI gives you free distribution"],
+    cons: ["Hard to build initially", "Legal grey area with scraping (use public data only)", "Needs good data engineering skills"],
+    techStack: ["Python/Scrapy/Playwright", "FastAPI", "Postgres/Supabase", "Railway", "Stripe", "RapidAPI", "GitHub Actions"],
+    monetization: "API subscription tiers ($29/$99/$299/mo), per-call pricing, enterprise annual contracts, bulk data exports",
+    timeToRevenue: "2–4 months (build + first API customers)",
+    manualWork: "Zero after launch. Scrapers run automatically. Stripe handles billing.",
+    bestFor: "Developers with data engineering skills who want a B2B product with huge margins"
+  },
+  {
+    id: 5,
+    title: "AI-Powered Lead Gen Machine",
+    color: "#c77dff",
+    category: ["all","fastest","high-income"],
+    difficulty: "medium",
+    difficultyScore: 55,
+    tags: ["Lead Gen","B2B","Apollo","Automation","Email"],
+    shortDesc: "Automatically identify businesses with specific problems, generate AI-personalized outreach, and sell the qualified leads or charge on a per-appointment basis.",
+    incomeScore: 80,
+    automationScore: 75,
+    easeScore: 60,
+    speedScore: 90,
+    rev30: "$200–2k",
+    rev90: "$1k–8k",
+    rev1y: "$3k–20k/mo",
+    incomeRaw: 80,
+    speedRaw: 90,
+    automationRaw: 75,
+    easeRaw: 60,
+    fullDesc: `You build a fully automated system that finds businesses fitting a specific profile (e.g., HVAC companies with bad reviews, e-commerce stores with slow websites, law firms with no Google presence), then sends hyper-personalized AI outreach. You either sell these leads directly to agencies, or charge a retainer to run the system for a niche. The system books calls on autopilot.`,
+    howItWorks: [
+      "Pick a niche: e.g., restaurants with <3.5 star Google reviews in top 50 US cities",
+      "Use Apollo.io free tier + custom scraper to pull business lists matching criteria",
+      "For each business, AI generates a personalized email citing their specific problem",
+      "Send via Instantly.ai or Lemlist (warmup included). 5–15% reply rates are normal",
+      "Positive replies go to a Calendly booking link. Booked calls = product delivered",
+      "Sell the leads: $20–$100 per qualified lead to marketing agencies",
+      "Or sell 'appointments booked' to service businesses at $150–$500 each",
+      "n8n orchestrates the entire pipeline automatically"
+    ],
+    pros: ["Fastest path to real cash (weeks not months)", "No product to build", "Scales by adding more niches", "Agencies desperately need good leads"],
+    cons: ["Email warmup takes 2–4 weeks", "Needs quality copywriting initially", "Some manual oversight for replies"],
+    techStack: ["Python", "Apollo.io API", "Instantly.ai", "n8n", "Calendly", "OpenAI API", "Airtable"],
+    monetization: "Per-lead sales ($20–100/lead), per-appointment booking fees ($150–500), monthly retainer from agencies ($1k–5k/mo)",
+    timeToRevenue: "2–4 weeks (fastest on this list)",
+    manualWork: "Low-medium. Replies and closing deals need human touch initially.",
+    bestFor: "Those who need income NOW and can handle some initial manual work"
+  },
+  {
+    id: 6,
+    title: "Automated YouTube / Faceless Channel",
+    color: "#ff9f43",
+    category: ["all","zero-cost","no-manual"],
+    difficulty: "easy",
+    difficultyScore: 30,
+    tags: ["YouTube","Video","AI","AdSense","Automation"],
+    shortDesc: "AI scripts, voiceovers, and edits videos in a faceless niche (finance tips, trivia, history, etc.). YouTube AdSense and sponsorships monetize at scale.",
+    incomeScore: 70,
+    automationScore: 70,
+    easeScore: 80,
+    speedScore: 50,
+    rev30: "$0",
+    rev90: "$50–300",
+    rev1y: "$1k–10k/mo",
+    incomeRaw: 70,
+    speedRaw: 50,
+    automationRaw: 70,
+    easeRaw: 80,
+    fullDesc: `Faceless YouTube channels in evergreen niches (finance, history, motivation, true crime, quiz channels) generate AdSense revenue indefinitely. AI handles: script writing (Claude), text-to-speech voiceover (ElevenLabs free tier), video assembly (Remotion or Shotstack API), thumbnail generation (DALL-E), and auto-upload via YouTube Data API. One pipeline → one video/day → compounding library.`,
+    howItWorks: [
+      "Pick a faceless niche: e.g., 'daily finance facts', 'historical mysteries', 'AI news explained'",
+      "GitHub Actions daily job: Claude generates a 500-word script on that day's topic",
+      "ElevenLabs API converts script to voiceover (free tier: 10k chars/mo)",
+      "Remotion or Shotstack assembles video: stock footage + voiceover + subtitles",
+      "YouTube Data API auto-uploads with AI-generated title, description, tags",
+      "After 1k subscribers + 4k watch hours: AdSense activates",
+      "After 10k subscribers: add affiliate links in descriptions and sponsorship deals",
+      "Old videos keep earning forever — true passive compounding"
+    ],
+    pros: ["Videos earn forever (evergreen library)", "YouTube promotes content organically", "Near-zero cost (stock footage APIs are cheap)", "Sponsorships can dwarf AdSense"],
+    cons: ["YouTube monetization requires 1k subs + 4k hours first", "Algorithm can suppress new channels", "ElevenLabs free tier is limited"],
+    techStack: ["Python", "Claude API", "ElevenLabs", "Remotion/Shotstack", "YouTube Data API", "GitHub Actions", "Unsplash/Pexels API"],
+    monetization: "YouTube AdSense ($2–8 CPM), affiliate links in descriptions, channel sponsorships, digital product promotions",
+    timeToRevenue: "4–8 months (monetization threshold)",
+    manualWork: "Near zero. Review quality monthly. Everything else automated.",
+    bestFor: "Those wanting a long-term YouTube asset without ever appearing on camera"
+  },
+  {
+    id: 7,
+    title: "Digital Product Marketplace Bot",
+    color: "#48cae4",
+    category: ["all","easy","zero-cost","fastest"],
+    difficulty: "easy",
+    difficultyScore: 25,
+    tags: ["Gumroad","Templates","AI","Digital Products","Etsy"],
+    shortDesc: "AI mass-generates digital products (templates, prompts, spreadsheets, ebooks) and lists them across Gumroad, Etsy, and Payhip automatically.",
+    incomeScore: 55,
+    automationScore: 65,
+    easeScore: 90,
+    speedScore: 80,
+    rev30: "$50–300",
+    rev90: "$200–1k",
+    rev1y: "$500–5k/mo",
+    incomeRaw: 55,
+    speedRaw: 80,
+    automationRaw: 65,
+    easeRaw: 90,
+    fullDesc: `AI can generate useful digital products in bulk: prompt packs, Notion templates, Excel calculators, ebook guides, Canva templates, resume templates, social media calendars, and more. You build a pipeline that generates these products, creates listings (title, description, tags, preview images), and publishes them across multiple marketplaces. Sales happen while you sleep — no inventory, no delivery, just income.`,
+    howItWorks: [
+      "Research trending searches on Etsy and Gumroad (free tools: eRank, Marmalead free tier)",
+      "For each trend, AI generates the product content (e.g., 50-page ebook, 100 ChatGPT prompts, Notion template)",
+      "Python script exports the content to PDF/DOCX/Notion format automatically",
+      "Listing bot creates Gumroad product via API and Etsy listing via their API",
+      "Canva API or DALL-E generates product preview/thumbnail images",
+      "Gumroad and Etsy handle payment, delivery, and customer service",
+      "Update listings monthly based on new trending keywords",
+      "Bundle products into value packs for higher average order value"
+    ],
+    pros: ["Fastest to first dollar", "Zero delivery cost (digital)", "Multiple marketplace distribution", "Gumroad/Etsy handle everything post-purchase"],
+    cons: ["Lower income ceiling", "Market gets saturated fast in hot niches", "Etsy has listing fees ($0.20/product)"],
+    techStack: ["Python", "Claude API", "Gumroad API", "Etsy API", "Canva API", "DALL-E", "Pandas (Excel export)"],
+    monetization: "Direct product sales ($5–$97 per product), bundle deals, subscription product packs (Patreon-style via Gumroad)",
+    timeToRevenue: "1–3 weeks (fastest possible)",
+    manualWork: "Low. Initial product quality review needed. Listings are automated.",
+    bestFor: "Quickest path to first revenue with minimal technical skill needed"
+  },
+  {
+    id: 8,
+    title: "Automated Reddit / Forum Arbitrage",
+    color: "#f72585",
+    category: ["all","zero-cost","fastest","easy"],
+    difficulty: "easy",
+    difficultyScore: 30,
+    tags: ["Reddit","Affiliate","Automation","Traffic","SEO"],
+    shortDesc: "Bots monitor Reddit and niche forums for questions your affiliate products solve, then intelligently respond with helpful content + your affiliate links.",
+    incomeScore: 45,
+    automationScore: 60,
+    easeScore: 85,
+    speedScore: 85,
+    rev30: "$50–500",
+    rev90: "$200–1.5k",
+    rev1y: "$500–4k/mo",
+    incomeRaw: 45,
+    speedRaw: 85,
+    automationRaw: 60,
+    easeRaw: 85,
+    fullDesc: `Reddit gets 57 billion pageviews/month. People ask product questions constantly. A monitoring bot watches subreddits for keywords related to your affiliate products, AI generates genuinely helpful responses that naturally include your affiliate link, and a human-in-the-loop (or full automation) posts them. Done right, this is value delivery + passive income. Done wrong, it's spam and ban-worthy.`,
+    howItWorks: [
+      "Join Amazon Associates or other affiliate programs in your niche",
+      "Use Reddit API (PRAW library) to monitor 5–20 subreddits for trigger keywords",
+      "When someone asks 'best X for Y', bot flags it and Claude writes a helpful, genuine answer",
+      "Answer includes naturally embedded affiliate link (disclosed as required by FTC)",
+      "Optional: human reviews the draft before posting (5 min/day) or full auto-post",
+      "Repeat across Quora, niche forums, and Facebook Groups",
+      "Track which subreddits/topics convert best. Double down on those.",
+      "Combine with a blog: Reddit answers link to your blog, blog links to affiliate products"
+    ],
+    pros: ["Near-zero cost to start", "Reddit traffic converts well for product queries", "Can be profitable within days", "Synergizes with existing affiliate work"],
+    cons: ["Reddit bans bots aggressively — needs careful implementation", "Lower income ceiling", "FTC disclosure required", "Needs aged Reddit accounts"],
+    techStack: ["Python", "PRAW (Reddit API)", "Claude API", "Airtable (tracking)", "Amazon Associates", "GitHub Actions"],
+    monetization: "Affiliate commissions (3–10% on Amazon, up to 50% on digital products), CPA deals, traffic to monetized blog",
+    timeToRevenue: "Days to weeks",
+    manualWork: "Low-medium. Reply review takes 10–30 min/day initially.",
+    bestFor: "Those with existing affiliate relationships who want a new traffic channel fast"
+  }
+];
+
+let selectedIds = new Set();
+let currentFilter = 'all';
+let currentSort = 'default';
+
+function renderCards(data) {
+  const grid = document.getElementById('card-grid');
+  grid.innerHTML = '';
+  data.forEach((idea, i) => {
+    const diff = idea.difficulty === 'easy' ? 'badge-diff-easy' : idea.difficulty === 'medium' ? 'badge-diff-medium' : 'badge-diff-hard';
+    const diffLabel = idea.difficulty.toUpperCase();
+    const card = document.createElement('div');
+    card.className = 'card' + (selectedIds.has(idea.id) ? ' selected' : '');
+    card.style.setProperty('--card-color', idea.color);
+    card.dataset.id = idea.id;
+    card.innerHTML = `
+      <div class="card-header">
+        <div>
+          <div class="card-num">IDEA ${String(idea.id).padStart(2,'0')}</div>
+          <div class="card-title">${idea.title}</div>
+        </div>
+        <div class="card-badges">
+          <span class="badge ${diff}">${diffLabel}</span>
+        </div>
+      </div>
+      <div class="card-desc">${idea.shortDesc}</div>
+      <div class="scores">
+        ${[
+          {label:'Income', val: idea.incomeScore},
+          {label:'Automation', val: idea.automationScore},
+          {label:'Ease', val: idea.easeScore},
+          {label:'Speed', val: idea.speedScore}
+        ].map(s => `
+          <div class="score-item">
+            <label>${s.label}</label>
+            <div class="score-bar"><div class="score-fill" style="width:${s.val}%"></div></div>
+            <div class="score-val">${s.val}/100</div>
+          </div>`).join('')}
+      </div>
+      <div class="revenue-row">
+        <div class="rev-item"><div class="rev-label">30d</div><div class="rev-val">${idea.rev30}</div></div>
+        <div class="rev-item"><div class="rev-label">90d</div><div class="rev-val">${idea.rev90}</div></div>
+        <div class="rev-item"><div class="rev-label">Year 1</div><div class="rev-val">${idea.rev1y}</div></div>
+      </div>
+      <div class="tags">${idea.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      <button class="card-expand-btn" onclick="openDetail(${idea.id})">→ DEEP DIVE</button>
+    `;
+    card.addEventListener('click', (e) => {
+      if (e.target.tagName === 'BUTTON') return;
+      if (selectedIds.has(idea.id)) selectedIds.delete(idea.id);
+      else selectedIds.add(idea.id);
+      renderCards(getFilteredSorted());
+    });
+    grid.appendChild(card);
+  });
+}
+
+function getFilteredSorted() {
+  let data = IDEAS.filter(i => currentFilter === 'all' || i.category.includes(currentFilter));
+  if (currentSort === 'income') data.sort((a,b) => b.incomeRaw - a.incomeRaw);
+  else if (currentSort === 'automation') data.sort((a,b) => b.automationRaw - a.automationRaw);
+  else if (currentSort === 'difficulty') data.sort((a,b) => b.easeRaw - a.easeRaw);
+  else if (currentSort === 'speed') data.sort((a,b) => b.speedRaw - a.speedRaw);
+  return data;
+}
+
+function filterCards(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCards(getFilteredSorted());
+}
+
+function sortCards(v) {
+  currentSort = v;
+  renderCards(getFilteredSorted());
+}
+
+function openDetail(id) {
+  const idea = IDEAS.find(i => i.id === id);
+  document.getElementById('detail-num').textContent = `IDEA ${String(idea.id).padStart(2,'0')}`;
+  document.getElementById('detail-title').textContent = idea.title;
+  document.getElementById('detail-title').style.color = idea.color;
+
+  document.getElementById('detail-body').innerHTML = `
+    <div class="detail-section">
+      <h3>What It Is</h3>
+      <p>${idea.fullDesc}</p>
+    </div>
+    <div class="detail-section">
+      <h3>How It Works — Step by Step</h3>
+      <ol class="step-list">${idea.howItWorks.map(s=>`<li>${s}</li>`).join('')}</ol>
+    </div>
+    <div class="detail-section">
+      <h3>Revenue Estimates</h3>
+      <div class="revenue-row">
+        <div class="rev-item"><div class="rev-label">30 Days</div><div class="rev-val" style="color:${idea.color}">${idea.rev30}</div></div>
+        <div class="rev-item"><div class="rev-label">90 Days</div><div class="rev-val" style="color:${idea.color}">${idea.rev90}</div></div>
+        <div class="rev-item"><div class="rev-label">Year 1/mo</div><div class="rev-val" style="color:${idea.color}">${idea.rev1y}</div></div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <h3>Monetization Methods</h3>
+      <p>${idea.monetization}</p>
+    </div>
+    <div class="detail-section">
+      <h3>Pros & Cons</h3>
+      <div class="pros-cons">
+        <div class="pros"><h4>PROS</h4><ul>${idea.pros.map(p=>`<li>${p}</li>`).join('')}</ul></div>
+        <div class="cons"><h4>CONS</h4><ul>${idea.cons.map(c=>`<li>${c}</li>`).join('')}</ul></div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <h3>Tech Stack (mostly free)</h3>
+      <div class="tech-stack">${idea.techStack.map(t=>`<span class="tech-pill">${t}</span>`).join('')}</div>
+    </div>
+    <div class="detail-section">
+      <h3>Key Metrics</h3>
+      <div style="display:grid;gap:8px;">
+        ${[
+          {k:'Time to First Revenue', v: idea.timeToRevenue},
+          {k:'Manual Work Required', v: idea.manualWork},
+          {k:'Best For', v: idea.bestFor},
+          {k:'Difficulty', v: idea.difficulty.toUpperCase()},
+        ].map(m=>`
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;font-size:12px;padding:8px 0;border-bottom:1px solid var(--border)">
+            <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);flex-shrink:0">${m.k}</span>
+            <span style="color:var(--text);text-align:right">${m.v}</span>
+          </div>`).join('')}
+      </div>
+    </div>
+  `;
+
+  document.getElementById('detail-panel').classList.add('open');
+  document.getElementById('overlay').classList.add('open');
+}
+
+function closeDetail() {
+  document.getElementById('detail-panel').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+}
+
+function openCompare() {
+  if (selectedIds.size < 2) {
+    alert('Click on 2 or more cards to select them first, then compare.');
+    return;
+  }
+  const selected = IDEAS.filter(i => selectedIds.has(i.id));
+  const grid = document.getElementById('compare-grid');
+  grid.innerHTML = selected.map(idea => `
+    <div class="compare-card" style="border-top:3px solid ${idea.color}">
+      <h3>${idea.title}</h3>
+      ${[
+        {k:'Income Potential', v: idea.incomeScore+'/100'},
+        {k:'Automation Level', v: idea.automationScore+'/100'},
+        {k:'Ease of Setup', v: idea.easeScore+'/100'},
+        {k:'Speed to Revenue', v: idea.speedScore+'/100'},
+        {k:'30-Day Revenue', v: idea.rev30},
+        {k:'90-Day Revenue', v: idea.rev90},
+        {k:'Year 1 Monthly', v: idea.rev1y},
+        {k:'Time to Revenue', v: idea.timeToRevenue},
+        {k:'Difficulty', v: idea.difficulty.toUpperCase()},
+        {k:'Manual Work', v: idea.manualWork.split('.')[0]},
+      ].map(m=>`
+        <div class="compare-metric">
+          <span class="label">${m.k}</span>
+          <span class="val" style="color:${idea.color}">${m.v}</span>
+        </div>`).join('')}
+    </div>
+  `).join('');
+  document.getElementById('compare-view').classList.add('open');
+}
+
+function closeCompare() {
+  document.getElementById('compare-view').classList.remove('open');
+}
+
+renderCards(IDEAS);
+</script>
+</body>
+</html>
