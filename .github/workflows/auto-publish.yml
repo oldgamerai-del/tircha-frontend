@@ -14,13 +14,14 @@ permissions:
 jobs:
   generate-content:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
 
     steps:
       - name: Checkout frontend repo
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          repository: oldgamerai-del/tircha-frontend
           fetch-depth: 0
 
       - name: Checkout backend repo
