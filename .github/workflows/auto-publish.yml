@@ -53,8 +53,6 @@ jobs:
         run: |
           git config --global user.email "bot@tircha.com"
           git config --global user.name "Tircha Bot"
-          git fetch origin master
-          git reset --hard origin/master
           git add content/blog/
           git diff --staged --quiet || git commit -m "Auto: New article $(date +%Y-%m-%d-%H%M)"
           git push origin master
