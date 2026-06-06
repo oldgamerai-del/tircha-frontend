@@ -64,11 +64,10 @@ export default async function ArticlePage({ params }: Props) {
         })} · {readTime} min read
       </p>
       <div
-        className="prose prose-sm max-w-none text-gray-700 leading-relaxed
-          prose-h2:text-xl prose-h2:font-bold prose-h2:mt-6 prose-h2:mb-3
-          prose-h3:text-lg prose-h3:font-semibold prose-h3:mt-4 prose-h3:mb-2
-          prose-p:mb-4 prose-li:mb-1"
-        dangerouslySetInnerHTML={{ __html: ... }}
+        className="prose prose-lg max-w-none text-gray-700 leading-relaxed"
+        dangerouslySetInnerHTML={{
+          __html: `<p class="mb-4">${contentHtml}</p>`
+        }}
       />
       {article.faq && article.faq.length > 0 && (
         <div className="mt-12 border-t pt-8">
