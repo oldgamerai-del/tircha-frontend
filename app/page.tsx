@@ -39,8 +39,8 @@ export default function HomePage() {
             <Link href="/blog" className="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-bold text-lg">
               Browse All Articles
             </Link>
-            <Link href="/blog" className="border border-white/20 text-white px-8 py-4 rounded-xl font-bold text-lg">
-              Trading Reviews
+            <Link href="/pricing" className="border border-white/20 text-white px-8 py-4 rounded-xl font-bold text-lg">
+              API Pricing
             </Link>
           </div>
         </div>
