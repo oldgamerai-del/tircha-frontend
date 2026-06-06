@@ -4,7 +4,7 @@ export default function PricingPage() {
   const plans = [
     {
       name: "Starter",
-      price: "Rs2499",
+      price: "₹2,499",
       period: "/month",
       limit: "10 articles/day",
       features: [
@@ -20,7 +20,7 @@ export default function PricingPage() {
     },
     {
       name: "Pro",
-      price: "Rs3799",
+      price: "₹3,799",
       period: "/month",
       limit: "50 articles/day",
       features: [
@@ -37,7 +37,7 @@ export default function PricingPage() {
     },
     {
       name: "Agency",
-      price: "Rs5899",
+      price: "₹5,899",
       period: "/month",
       limit: "200 articles/day",
       features: [
@@ -101,7 +101,7 @@ export default function PricingPage() {
                   </li>
                 ))}
               </ul>
-              
+              <a
                 href={plan.link}
                 className={`block text-center py-3 px-6 rounded-xl font-bold transition-all ${
                   plan.highlight
