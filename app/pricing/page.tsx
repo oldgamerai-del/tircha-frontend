@@ -4,7 +4,7 @@ export default function PricingPage() {
   const plans = [
     {
       name: "Starter",
-      price: "$29",
+      price: "Rs2499",
       period: "/month",
       limit: "10 articles/day",
       features: [
@@ -15,12 +15,12 @@ export default function PricingPage() {
         "Email support",
       ],
       cta: "Start Free Trial",
-      link: "YOUR_LEMONSQUEEZY_STARTER_LINK",
+      link: "https://tircha.lemonsqueezy.com/checkout/buy/4cce2d09-6f8b-4f17-bf86-3fa5d08facb5",
       highlight: false,
     },
     {
       name: "Pro",
-      price: "$49",
+      price: "Rs3799",
       period: "/month",
       limit: "50 articles/day",
       features: [
@@ -32,12 +32,12 @@ export default function PricingPage() {
         "Priority support",
       ],
       cta: "Get Pro Access",
-      link: "YOUR_LEMONSQUEEZY_PRO_LINK",
+      link: "https://tircha.lemonsqueezy.com/checkout/buy/0c2e11e0-e12d-4493-9e25-62791fb77318",
       highlight: true,
     },
     {
       name: "Agency",
-      price: "$99",
+      price: "Rs5899",
       period: "/month",
       limit: "200 articles/day",
       features: [
@@ -49,7 +49,7 @@ export default function PricingPage() {
         "Dedicated support",
       ],
       cta: "Contact Us",
-      link: "YOUR_LEMONSQUEEZY_AGENCY_LINK",
+      link: "https://tircha.lemonsqueezy.com/checkout/buy/d29c1dca-ef50-414f-93a4-91c376adbf44",
       highlight: false,
     },
   ]
