@@ -15,7 +15,7 @@ export default function PricingPage() {
         "Email support",
       ],
       cta: "Start Free Trial",
-      link: "https://tircha.lemonsqueezy.com/checkout/buy/4cce2d09-6f8b-4f17-bf86-3fa5d08facb5",
+      link: "https://rzp.io/rzp/5TeBHCCi",
       highlight: false,
     },
     {
@@ -32,7 +32,7 @@ export default function PricingPage() {
         "Priority support",
       ],
       cta: "Get Pro Access",
-      link: "https://tircha.lemonsqueezy.com/checkout/buy/0c2e11e0-e12d-4493-9e25-62791fb77318",
+      link: "https://rzp.io/rzp/9usbPWN",
       highlight: true,
     },
     {
@@ -49,7 +49,7 @@ export default function PricingPage() {
         "Dedicated support",
       ],
       cta: "Contact Us",
-      link: "https://tircha.lemonsqueezy.com/checkout/buy/d29c1dca-ef50-414f-93a4-91c376adbf44",
+      link: "https://rzp.io/rzp/28d1kKFD",
       highlight: false,
     },
   ]
