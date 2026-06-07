@@ -105,7 +105,31 @@ export default async function ArticlePage({ params }: Props) {
     </div>
   )
 }
+export async function generateMetadata({ params }: Props) {
+  const { slug } = await params
+  const filePath = path.join(process.cwd(), 'content', 'blog', `${slug}.json`)
 
+  if (!fs.existsSync(filePath)) return {}
+
+  const article = JSON.parse(fs.readFileSync(filePath, 'utf8'))
+
+  return {
+    title: article.title,
+    description: article.meta_description,
+    openGraph: {
+      title: article.title,
+      description: article.meta_description,
+      url: `https://tircha.com/blog/${slug}`,
+      type: "article",
+      publishedTime: article.generated_at,
+    },
+    twitter: {
+      card: "summary",
+      title: article.title,
+      description: article.meta_description,
+    }
+  }
+}
 export async function generateStaticParams() {
   const blogDir = path.join(process.cwd(), 'content', 'blog')
   if (!fs.existsSync(blogDir)) return []
