@@ -88,7 +88,7 @@ export default function DocsPage() {
             >
               Get API Key →
             </Link>
-            
+            <a
               href="mailto:support@tircha.com"
               className="border border-gray-600 hover:border-gray-400 text-gray-300 px-6 py-3 rounded-lg font-semibold text-sm transition-colors"
             >
