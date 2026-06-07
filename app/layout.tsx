@@ -21,8 +21,42 @@ import Script from 'next/script'
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Tircha — AI Blog & Keyword API",
-  description: "Generate SEO blog articles and keyword research via API. Trusted by creators and affiliate marketers.",
+  title: {
+    default: "Tircha — Best Reviews for Trading, AI Tools, Software & Gaming",
+    template: "%s | Tircha"
+  },
+  description: "Expert reviews and comparisons for trading platforms, AI tools, software and gaming gear. Find the best products with honest unbiased recommendations.",
+  keywords: ["trading platform reviews", "AI tools comparison", "best VPN", "gaming gear reviews", "affiliate marketing", "software reviews"],
+  authors: [{ name: "Tircha" }],
+  creator: "Tircha",
+  metadataBase: new URL("https://tircha.com"),
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://tircha.com",
+    siteName: "Tircha",
+    title: "Tircha — Best Reviews for Trading, AI Tools, Software & Gaming",
+    description: "Expert reviews and comparisons across Trading, AI Tools, Software and Gaming. Honest unbiased recommendations.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Tircha — Best Reviews for Trading, AI Tools & Gaming",
+    description: "Expert reviews and comparisons. Honest unbiased recommendations.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  verification: {
+    google: "your-google-verification-code",
+  },
 }
 
 export default function RootLayout({
