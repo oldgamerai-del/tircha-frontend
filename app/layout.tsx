@@ -2,7 +2,22 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import Link from "next/link"
-
+import Script from 'next/script'
+<head>
+    // Add inside <head> in your layout.tsx
+    <Script
+      src={`https://www.googletagmanager.com/gtag/js?id=G-09CVS5G773`}
+      strategy="afterInteractive"
+    />
+    <Script id="google-analytics" strategy="afterInteractive">
+      {`
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-09CVS5G773');
+      `}
+    </Script>
+  </head>
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
