@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: "your-google-verification-code",
+    google: "G-09CVS5G773",
   },
 }
 
@@ -53,9 +53,8 @@ export default function RootLayout({
   return (
     <html lang="en">
         
-    
-    <head>
-        // Add inside <head> in your layout.tsx
+        <head>
+        
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=G-09CVS5G773`}
           strategy="afterInteractive"
