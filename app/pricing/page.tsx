@@ -120,7 +120,7 @@ export default function PricingPage() {
           <h2 className="text-2xl font-bold mb-6">Simple API Integration</h2>
           <pre className="text-green-400 text-sm overflow-x-auto">
 {`# Generate a blog article
-curl -X POST https://tircha-backend.railway.app/api/blog/generate \\
+curl -X POST https://tircha-backend-production.up.railway.app/api/blog/generate \\
   -H "X-API-Key: your_tircha_api_key" \\
   -H "Content-Type: application/json" \\
   -d '{"keyword": "best VPN for gaming", "niche": "software"}'
