@@ -14,8 +14,8 @@ export default function PricingPage() {
         "Markdown + JSON format",
         "Email support",
       ],
-      cta: "Start Free Trial",
-      link: "https://rzp.io/rzp/5TeBHCCi",
+      cta: "Start your Journey",
+      link: "https://rzp.io/rzp/uKEE65Z",
       highlight: false,
     },
     {
@@ -32,7 +32,7 @@ export default function PricingPage() {
         "Priority support",
       ],
       cta: "Get Pro Access",
-      link: "https://rzp.io/rzp/9usbPWN",
+      link: "https://rzp.io/rzp/5JduetS",
       highlight: true,
     },
     {
@@ -49,7 +49,7 @@ export default function PricingPage() {
         "Dedicated support",
       ],
       cta: "Contact Us",
-      link: "https://rzp.io/rzp/28d1kKFD",
+      link: "https://rzp.io/rzp/CYcmK4p",
       highlight: false,
     },
   ]
