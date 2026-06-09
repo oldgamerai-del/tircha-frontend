@@ -4,24 +4,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-white">
 
-      <nav className="border-b border-gray-100 sticky top-0 bg-white z-50">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="text-2xl font-black text-gray-900">
-            Tir<span className="text-blue-600">cha</span>
-          </Link>
-          <div className="flex items-center gap-6 text-sm font-medium text-gray-600">
-            <Link href="/blog" className="hover:text-blue-600">Blog</Link>
-            <Link href="/blog" className="hover:text-blue-600 hidden md:block">Trading</Link>
-            <Link href="/blog" className="hover:text-blue-600 hidden md:block">AI Tools</Link>
-            <Link href="/blog" className="hover:text-blue-600 hidden md:block">Gaming</Link>
-            <Link href="/blog" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-              Read Articles
-            </Link>
-          </div>
-        </div>
-      </nav>
-
-      <section className="bg-gradient-to-br from-gray-900 via-blue-950 to-gray-900 text-white py-24 px-4">
+        <section className="bg-gradient-to-br from-gray-900 via-blue-950 to-gray-900 text-white py-24 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-block bg-blue-500/20 border border-blue-400/30 text-blue-300 text-sm px-4 py-2 rounded-full mb-6">
             Trusted Reviews and Comparisons
@@ -147,24 +130,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      <footer className="border-t border-gray-100 py-10 px-4 bg-gray-900">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div>
-            <div className="text-xl font-black text-white">Tir<span className="text-blue-400">cha</span></div>
-            <div className="text-gray-400 text-sm mt-1">Honest reviews. Real comparisons.</div>
-          </div>
-          <div className="flex gap-6 text-sm text-gray-400">
-            <Link href="/blog" className="hover:text-white">Blog</Link>
-            <Link href="/privacy" className="hover:text-white">Privacy Policy</Link>
-            <Link href="/disclaimer" className="hover:text-white">Disclaimer</Link>
-          </div>
-          <div className="text-gray-500 text-xs text-center">
-            2026 Tircha. Contains affiliate links.
-          </div>
-        </div>
-      </footer>
-
-    </div>
+   </div>
   )
 }
