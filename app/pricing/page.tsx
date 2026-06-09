@@ -49,7 +49,7 @@ export default function PricingPage() {
         "Dedicated support",
       ],
       cta: "Contact Us",
-      link: "https://rzp.io/rzp/z45uORR",
+      link: "https://rzp.io/rzp/CYcmK4p",
       highlight: false,
     },
   ]
