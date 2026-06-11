@@ -1,9 +1,18 @@
+"use client"
+import { useState } from "react"
 import Link from "next/link"
 
 export default function PricingPage() {
+  const [showModal, setShowModal] = useState(false)
+  const [selectedPlan, setSelectedPlan] = useState("")
+  const [email, setEmail] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
+
   const plans = [
     {
       name: "Starter",
+      planKey: "starter",
       price: "₹2,499",
       period: "/month",
       limit: "10 articles/day",
@@ -14,12 +23,11 @@ export default function PricingPage() {
         "Markdown + JSON format",
         "Email support",
       ],
-      cta: "Start your Journey",
-      link: "https://rzp.io/rzp/uKEE65Z",
       highlight: false,
     },
     {
       name: "Pro",
+      planKey: "pro",
       price: "₹3,799",
       period: "/month",
       limit: "50 articles/day",
@@ -31,12 +39,11 @@ export default function PricingPage() {
         "API access + docs",
         "Priority support",
       ],
-      cta: "Get Pro Access",
-      link: "https://rzp.io/rzp/5JduetS",
       highlight: true,
     },
     {
       name: "Agency",
+      planKey: "agency",
       price: "₹5,899",
       period: "/month",
       limit: "200 articles/day",
@@ -48,11 +55,54 @@ export default function PricingPage() {
         "Custom niches",
         "Dedicated support",
       ],
-      cta: "Contact Us",
-      link: "https://rzp.io/rzp/CYcmK4p",
       highlight: false,
     },
   ]
+
+  const handlePlanClick = (planKey: string) => {
+    setSelectedPlan(planKey)
+    setEmail("")
+    setError("")
+    setShowModal(true)
+  }
+
+  const handleSubscribe = async () => {
+    if (!email || !email.includes("@")) {
+      setError("Please enter a valid email address")
+      return
+    }
+
+    setLoading(true)
+    setError("")
+
+    try {
+      const res = await fetch(
+        "https://tircha-backend-production.up.railway.app/api/subscribe",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, plan: selectedPlan })
+        }
+      )
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setError(data.detail || "Something went wrong. Please try again.")
+        setLoading(false)
+        return
+      }
+
+      // Redirect to Razorpay checkout unique to this customer
+      window.location.href = data.checkout_url
+
+    } catch {
+      setError("Network error. Please try again.")
+      setLoading(false)
+    }
+  }
+
+  const selectedPlanName = plans.find(p => p.planKey === selectedPlan)?.name || ""
 
   return (
     <div className="min-h-screen bg-gray-50 py-20 px-4">
@@ -64,7 +114,7 @@ export default function PricingPage() {
           </h1>
           <p className="text-xl text-gray-500 max-w-xl mx-auto">
             Generate SEO blog articles and keyword research via API.
-            Used by 100s of creators and affiliate marketers.
+            Trusted by creators and affiliate marketers.
           </p>
         </div>
 
@@ -101,37 +151,28 @@ export default function PricingPage() {
                   </li>
                 ))}
               </ul>
-              <a
-                href={plan.link}
-                className={`block text-center py-3 px-6 rounded-xl font-bold transition-all ${
+              <button
+                onClick={() => handlePlanClick(plan.planKey)}
+                className={`w-full py-3 px-6 rounded-xl font-bold transition-all ${
                   plan.highlight
                     ? "bg-white text-blue-600 hover:bg-blue-50"
                     : "bg-blue-600 text-white hover:bg-blue-700"
                 }`}
               >
-                {plan.cta}
-              </a>
+                Get {plan.name} Access
+              </button>
             </div>
           ))}
         </div>
 
         {/* API Example */}
-        <div className="bg-gray-900 rounded-2xl p-8 text-white">
+        <div className="bg-gray-900 rounded-2xl p-8 text-white mb-8">
           <h2 className="text-2xl font-bold mb-6">Simple API Integration</h2>
           <pre className="text-green-400 text-sm overflow-x-auto">
-{`# Generate a blog article
-curl -X POST https://tircha-backend-production.up.railway.app/api/blog/generate \\
+{`curl -X POST https://tircha-backend-production.up.railway.app/api/blog/generate \\
   -H "X-API-Key: your_tircha_api_key" \\
   -H "Content-Type: application/json" \\
-  -d '{"keyword": "best VPN for gaming", "niche": "software"}'
-
-# Response
-{
-  "title": "Best VPN for Gaming in 2026",
-  "content_markdown": "...",
-  "word_count": 847,
-  "requests_remaining": 49
-}`}
+  -d '{"keyword": "best VPN for gaming", "niche": "software"}'`}
           </pre>
           <Link href="/docs" className="inline-block mt-4 text-blue-400 hover:underline text-sm">
             View full API documentation →
@@ -139,6 +180,60 @@ curl -X POST https://tircha-backend-production.up.railway.app/api/blog/generate 
         </div>
 
       </div>
+
+      {/* Email Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
+
+            <h2 className="text-2xl font-black text-gray-900 mb-2">
+              Get {selectedPlanName} Plan
+            </h2>
+            <p className="text-gray-500 text-sm mb-6">
+              Enter your email to receive your API key after payment.
+            </p>
+
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Email Address
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && handleSubscribe()}
+              placeholder="you@example.com"
+              className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3"
+              autoFocus
+            />
+
+            {error && (
+              <p className="text-red-500 text-sm mb-3">{error}</p>
+            )}
+
+            <p className="text-xs text-gray-400 mb-6">
+              Your API key will be emailed to this address within minutes of payment.
+              Subscription renews monthly. Cancel anytime.
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                onClick={handleSubscribe}
+                disabled={loading}
+                className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {loading ? "Creating checkout..." : "Continue to Payment →"}
+              </button>
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-4 py-3 border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
     </div>
   )
 }
