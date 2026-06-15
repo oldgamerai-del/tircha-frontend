@@ -3,7 +3,7 @@ import fs from 'fs'
 import path from 'path'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://www.tircha.com'
+  const baseUrl = 'https://tircha.com'
 
   // Static pages always included
   const staticPages: MetadataRoute.Sitemap = [
